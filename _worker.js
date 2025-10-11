@@ -47,15 +47,15 @@ export default {
             let { ID, PADDR, P64, P64PREFIX, S5, D_URL, ENABLE_LOG } = env;
 
             const kvCheckResponse = await check_kv(env);
-            let kvData = {};
+            let kv_id = '',kv_pDomain = '', kv_p64Domain = '';
             if (!kvCheckResponse) {
-                const kvData = await get_kv(env) || {};
-                log(`[fetch]--> kv_id = ${kvData.kv_id}, kv_pDomain = ${kvData.kv_pDomain}, kv_p64Domain = ${kvData.kv_p64Domain}`);
+                ({ kv_id, kv_pDomain, kv_p64Domain } = await get_kv(env));
             }
+            log(`[fetch]--> kv_id = ${kv_id}, kv_pDomain = ${kv_pDomain}, kv_p64Domain = ${kv_p64Domain}`);
 
             const url = new URL(request.url);
             enableLog = url.searchParams.get('ENABLE_LOG') || ENABLE_LOG || enableLog;
-            id = (kvData.kv_id || ID || id).toLowerCase();
+            id = (kv_id || ID || id).toLowerCase();
 
             paddr = url.searchParams.get('PADDR') || PADDR || paddr;
             if (paddr) {
@@ -63,11 +63,11 @@ export default {
                 paddr = ip;
                 pnum = port || pnum;
             }
-            pDomain = kvData.kv_pDomain || pDomain;
+            pDomain = kv_pDomain || pDomain;
 
             p64 = url.searchParams.get('P64') || P64 || p64;
             p64Prefix = url.searchParams.get('P64PREFIX') || P64PREFIX || p64Prefix;
-            p64Domain = kvData.kv_p64Domain || p64Domain;
+            p64Domain = kv_p64Domain || p64Domain;
 
             s5 = url.searchParams.get('S5') || S5 || s5;
             parsedS5 = await requestParserFromUrl(s5, url);
